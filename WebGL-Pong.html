@@ -3,7 +3,7 @@
 	<head>
 
 		<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
-
+<!--Shaders-->
 		<script id="shader-vs" type="x-shader/x-vertex">
 			uniform vec2 uResolution;
 			
@@ -38,10 +38,33 @@
 				gl_FragColor = vColor;
 			}
 		</script>
+<!--/Shaders-->
 
 		<script type="text/javascript">
-
+<!--Classes-->
+			function Player() {
+				this.vertices = [
+					0.0, 0.0,
+					0.0, 100.0,
+					20.0, 100.0,
+					20.0, 0.0
+				];
+				this.color = vec4(0.0, 0.0, 0.0, 1.0);
+				mvMatrix = mat3.identity();
+			}
 			
+			function Ball() {
+				this.vertices = [
+					0.0, 0.0,
+					0.0, 20.0,
+					20.0, 20.0,
+					20.0, 0.0
+				];
+				this.color = vec4(0.0, 0.0, 0.0, 1.0);
+				mvMatrix = mat3.identity();
+			}
+			
+<!--/Classes-->
 
 			var gl;
 
@@ -139,30 +162,6 @@
 			//var squareVertexColorBuffer;
 
 			function initBuffers() {
-				triangleVertexPositionBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
-				var vertices = [
-					 /*0.0,  1.0,  0.0,
-					-1.0, -1.0,  0.0,
-					 1.0, -1.0,  0.0*/
-					 0.0,  0.0,  0.0,
-					 100.0, 0.0,  0.0,
-					 0.0, 100.0,  0.0
-				];
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-				triangleVertexPositionBuffer.itemSize = 3;
-				triangleVertexPositionBuffer.numItems = 3;
-
-				triangleVertexColorBuffer = gl.createBuffer();
-				gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexColorBuffer);
-				var colors = [
-					1.0, 0.0, 0.0, 1.0,
-					0.0, 1.0, 0.0, 1.0,
-					0.0, 0.0, 1.0, 1.0
-				];
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-				triangleVertexColorBuffer.itemSize = 4;
-				triangleVertexColorBuffer.numItems = 3;
 
 
 				/*squareVertexPositionBuffer = gl.createBuffer();
@@ -187,8 +186,6 @@
 				squareVertexColorBuffer.itemSize = 4;
 				squareVertexColorBuffer.numItems = 4;*/
 			}
-
-
 
 			function drawScene() {
 				gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
