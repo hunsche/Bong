@@ -4,6 +4,7 @@
 
 		<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 		<script type="text/javascript" src="Mat3Translate.js"></script>
+		<script type="text/javascript" src="webgl-utils.js"></script>
 		
 <!--Shaders-->
 		<script id="shader-vs" type="x-shader/x-vertex">
@@ -42,7 +43,7 @@
 
 		<script type="text/javascript">
 <!--Classes-->
-			function Player(locStart) {
+			function Player(locStart, color) {
 				this.mvMatrix = mat4.create();
 				mat4.identity(this.mvMatrix);
 				mat4.translate(this.mvMatrix, normalToClip(locStart));
@@ -53,21 +54,22 @@
 					0.0, 0.0,
 					20.0, 0.0
 				];
+				this.color = color;
 				initBuffers(this);
 			}
 			
-			function Ball(locStart) {
+			function Ball(locStart, color) {
 				this.mvMatrix = mat4.create();
 				mat4.identity(this.mvMatrix);
-				//alert(locStart[0] + "," + locStart[1] + "," + locStart[2]);
 				mat4.translate(this.mvMatrix, normalToClip(locStart));
-				//alert(this.mvMatrix[0] + "," + this.mvMatrix[1] + "," + this.mvMatrix[2] + "," + this.mvMatrix[3] + ",\n" + this.mvMatrix[4] + "," + this.mvMatrix[5] + "," + this.mvMatrix[6] + "," + this.mvMatrix[7] + ",\n" + this.mvMatrix[8] + "," + this.mvMatrix[9] + "," + this.mvMatrix[10] + "," + this.mvMatrix[11] + ",\n" + this.mvMatrix[12] + "," + this.mvMatrix[13] + "," + this.mvMatrix[14] + "," + this.mvMatrix[15]);
+				
 				this.vertices = [
 					0.0, 20.0,
 					20.0, 20.0,
 					0.0, 0.0,
 					20.0, 0.0
 				];
+				this.color = color;
 				initBuffers(this);
 			}
 <!--/Classes-->
@@ -79,6 +81,7 @@
 			var drawingMVMatrices = [];
 			var drawingVertexBuffers = [];
 			var drawingColorBuffers = [];
+			var currentlyPressedKeys = {};
 			
 			var player1;
 			var player2;
@@ -153,34 +156,18 @@
 				shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
 				gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
-				//shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 				shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 			}
 
-			//var pMatrix = mat4.create();
-
 			function setMatrixUniforms() {
 				gl.uniform2f(shaderProgram.resolutionUniform, canvas.width, canvas.height);	// Resolution
-				//gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
 				gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 			}
-
-			/*function initBuffers() {
-				
-				
-				drawingVertexBuffers.push(player1.vertexBuffer);
-				drawingVertexBuffers.push(player2.vertexBuffer);
-				drawingVertexBuffers.push(ball.vertexBuffer);
-				drawingColorBuffers.push(player1.colorBuffer);
-				drawingColorBuffers.push(player2.colorBuffer);
-				drawingColorBuffers.push(ball.colorBuffer);
-			}*/
 			
 			function initObjects() {
-				player1 = new Player([100.0, 100.0, 0.0]);
-				player2 = new Player([400.0, 100.0, 0.0]);
-				ball = new Ball([250.0, 250.0, 0.0]);
-				
+				player1 = new Player([100.0, 100.0, 0.0], [1.0, 0.0, 0.0, 1.0]);
+				player2 = new Player([400.0, 100.0, 0.0], [0.0, 1.0, 0.0, 1.0]);
+				ball = new Ball([250.0, 250.0, 0.0], [0.0, 0.0, 1.0, 1.0]);
 			}
 			
 			function initBuffers(object) {
@@ -192,7 +179,7 @@
 				
 				object.colors = [];
 				for (var i = 0; i < 4; i++) {
-					object.colors = object.colors.concat([1.0, 0.0, 0.0, 1.0]);
+					object.colors = object.colors.concat(object.color);
 				}
 				object.colorBuffer = gl.createBuffer();
 				gl.bindBuffer(gl.ARRAY_BUFFER, object.colorBuffer);
@@ -204,23 +191,59 @@
 				drawingVertexBuffers.push(object.vertexBuffer);
 				drawingColorBuffers.push(object.colorBuffer);
 			}
+			
+			function handleKeyDown(event) {
+				currentlyPressedKeys[event.keyCode] = true;
+			}
+
+			function handleKeyUp(event) {
+				currentlyPressedKeys[event.keyCode] = false;
+			}
+
+			function handleKeys() {
+				if (currentlyPressedKeys[33]) {
+					// Page Up
+					z -= 0.05;
+				}
+				if (currentlyPressedKeys[34]) {
+					// Page Down
+					z += 0.05;
+				}
+				if (currentlyPressedKeys[37]) {
+					// Left cursor key
+					ySpeed -= 1;
+				}
+				if (currentlyPressedKeys[39]) {
+					// Right cursor key
+					ySpeed += 1;
+				}
+				if (currentlyPressedKeys[38]) {
+					// Up cursor key
+					xSpeed -= 1;
+				}
+				if (currentlyPressedKeys[40]) {
+					// Down cursor key
+					xSpeed += 1;
+				}
+			}
 
 			function drawScene() {
 				gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
-				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				//gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+				gl.clear(gl.COLOR_BUFFER_BIT);
 				
 				var currentMVMatrix;
 				var vertexBuffer;
 				var colorBuffer;
-				while (drawingVertexBuffers.length > 0 && drawingColorBuffers.length > 0) {
+				//while (drawingVertexBuffers.length > 0 && drawingColorBuffers.length > 0) {
+				for (var i = drawingVertexBuffers.length; i > 0; i--) {
+				//alert("0");
 					mvMatrix = drawingMVMatrices.pop();
-					//alert(currentMVMatrix[0] + "," + currentMVMatrix[1] + "," + currentMVMatrix[2] + "," + currentMVMatrix[3] + ",\n" + currentMVMatrix[4] + "," + currentMVMatrix[5] + "," + currentMVMatrix[6] + "," + currentMVMatrix[7] + ",\n" + currentMVMatrix[8] + "," + currentMVMatrix[9] + "," + currentMVMatrix[10] + "," + currentMVMatrix[11] + ",\n" + currentMVMatrix[12] + "," + currentMVMatrix[13] + "," + currentMVMatrix[14] + "," + currentMVMatrix[15]);
+					drawingMVMatrices.unshift(mvMatrix);
 					vertexBuffer = drawingVertexBuffers.pop();
+					drawingVertexBuffers.unshift(vertexBuffer);
 					colorBuffer = drawingColorBuffers.pop();
-					//var translatedVector = normalToClip([240.0, 200.0, 0.0]);
-					//mat4.translate(mvMatrix, translatedVector);
-					//mvMatrix = normalToClip(currentMVMatrix);
-					//alert(mvMatrix[0] + "," + mvMatrix[1] + "," + mvMatrix[2] + "," + mvMatrix[3] + ",\n" + mvMatrix[4] + "," + mvMatrix[5] + "," + mvMatrix[6] + "," + mvMatrix[7] + ",\n" + mvMatrix[8] + "," + mvMatrix[9] + "," + mvMatrix[10] + "," + mvMatrix[11] + ",\n" + mvMatrix[12] + "," + mvMatrix[13] + "," + mvMatrix[14] + "," + mvMatrix[15]);
+					drawingColorBuffers.unshift(colorBuffer);
 					gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 					gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 					gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -231,25 +254,39 @@
 			}
 			
 			function normalToClip(src) {
-				//alert(src[0] + "," + src[1] + "," + src[2] + "," + src[3] + ",\n" + src[4] + "," + src[5] + "," + src[6] + "," + src[7] + ",\n" + src[8] + "," + src[9] + "," + src[10] + "," + src[11] + ",\n" + src[12] + "," + src[13] + "," + src[14] + "," + src[15]);
 				var zeroToOne = vec3.divide(src, resolution);
-				//alert(zeroToOne[0] + "," + zeroToOne[1] + "," + zeroToOne[2] + "," + zeroToOne[3] + ",\n" + zeroToOne[4] + "," + zeroToOne[5] + "," + zeroToOne[6] + "," + zeroToOne[7] + ",\n" + zeroToOne[8] + "," + zeroToOne[9] + "," + zeroToOne[10] + "," + zeroToOne[11] + ",\n" + zeroToOne[12] + "," + zeroToOne[13] + "," + zeroToOne[14] + "," + zeroToOne[15]);
 				var zeroToTwo = vec3.multiply(zeroToOne, [2.0, 2.0, 2.0]);
 				var dest = vec3.multiply(zeroToTwo, [1.0, -1.0, 0.0]);
 				return dest;
+			}
+			
+			function tick() {
+				requestAnimFrame(tick);
+				drawScene();
+				animate();
+			}
+	
+			var lastTime = 0;
+			function animate() {
+				var timeNow = new Date().getTime();
+				if (lastTime != 0) {
+					var elapsed = timeNow - lastTime;
+					
+					
+				}
+				lastTime = timeNow;
 			}
 
 			function webGLStart() {
 				var canvas = document.getElementById("canvas");
 				initGL(canvas);
 				initShaders();
-				//initBuffers();
 				initObjects();
 
 				gl.clearColor(0.0, 0.0, 0.0, 1.0);
 				gl.enable(gl.DEPTH_TEST);
 
-				drawScene();
+				tick();
 			}
 
 		</script>
