@@ -12,23 +12,17 @@
 			attribute vec4 aVertexColor;
 
 			uniform mat4 uMVMatrix;
-			//uniform mat3 uMVMatrix;
-			//uniform mat4 uPMatrix;
-			//varying mvMatrixMat4;
 
 			varying vec4 vColor;
 
 			void main(void) {
-				//gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 				// Convert the rectangle from pixels to 0.0 to 1.0
 				vec2 zeroToOne = aVertexPosition / uResolution;
 				// Convert from 0->1 to 0->2
 				vec2 zeroToTwo = zeroToOne * 2.0;
 				// Convert from 0->2 to -1->+1 (clipspace)
 				vec2 clipSpace = zeroToTwo - 1.0;
-				//gl_Position = vec4(aVertexPosition, 0.0, 1.0);
 				gl_Position = vec4(clipSpace * vec2(1, -1), 0.0, 1.0);
-				//mvMatrixMat4 = mat3.toMat4(uMVMatrix);
 				gl_Position = uMVMatrix * vec4(clipSpace * vec2(1, -1), 0.0, 1.0);
 				vColor = aVertexColor;
 			}
@@ -78,7 +72,6 @@
 			var shaderProgram;
 			var resolution;
 			var mvMatrix = mat4.create();
-			//var vertexBuffer;
 			var drawingVertexBuffers = [];
 			var drawingColorBuffers = [];
 			
@@ -167,9 +160,6 @@
 				gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
 			}
 
-			//var squareVertexPositionBuffer;
-			//var squareVertexColorBuffer;
-
 			/*function initBuffers() {
 				
 				
@@ -182,9 +172,8 @@
 			}*/
 			
 			function initObjects() {
-				//player1 = new Player();
-				//player1.vertices += 10;
-				//player2 = new Player();
+				player1 = new Player();
+				player2 = new Player();
 				ball = new Ball();
 				
 			}
@@ -213,38 +202,16 @@
 			function drawScene() {
 				gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 				gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-				//mat4.translate(mvMatrix, [3.0, 0.0, 0.0]);
-				/*gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
-				gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-				gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexColorBuffer);
-				gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, squareVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-				setMatrixUniforms();
-				gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);*/
 				
 				var vertexBuffer;
 				var colorBuffer;
-				//alert(drawingVertexBuffers.length);
-				//alert(drawingColorBuffers.length);
 				while (drawingVertexBuffers.length > 0 && drawingColorBuffers.length > 0) {
 					vertexBuffer = drawingVertexBuffers.pop();
 					colorBuffer = drawingColorBuffers.pop();
 					mat4.identity(mvMatrix);
-					var translatedVertex;
-					//alert("0");
-					//translatedVertex = [1.0, -0.5, 0.0];
-					translatedVertex = clipToNormal([20.0, 20.0, 0.0]);
-					//clipToNormal([1.0, 1.0, 0.0], translationVecClipToNormal);
-					//translatedVertex = vec3.divide([20.0, 20.0, 0.0], resolution);
-					//translatedVertex = vec3.multiply([1.0, -1.0, 0.0], translatedVertex);
-					//alert(translationVecClipToNormal[0]);
-					//alert(translatedVertex[0] + "," + translatedVertex[1] + "," + translatedVertex[2]);
-					mat4.translate(mvMatrix, translatedVertex);
-					//mat4.translate(mvMatrix, [0.0, 0.0, 0.0]);
-					//alert(translatedVertex[0] + "," + translatedVertex[1] + "," + translatedVertex[2]);
-					//alert(mvMatrix[0] + "," + mvMatrix[1] + "," + mvMatrix[2] + "," + mvMatrix[3] + ",\n" + mvMatrix[4] + "," + mvMatrix[5] + "," + mvMatrix[6] + "," + mvMatrix[7] + ",\n" + mvMatrix[8] + "," + mvMatrix[9] + "," + mvMatrix[10] + "," + mvMatrix[11] + ",\n" + mvMatrix[12] + "," + mvMatrix[13] + "," + mvMatrix[14] + "," + mvMatrix[15]);
+					var translatedVector;
+					translatedVector = normalToClip([240.0, 200.0, 0.0]);
+					mat4.translate(mvMatrix, translatedVector);
 					gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 					gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 					gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -254,27 +221,10 @@
 				}
 			}
 			
-			function clipToNormal(src) {
-				//alert("1");
-				// Convert the rectangle from pixels to 0.0 to 1.0
-				//var dest = src / resolution;
+			function normalToClip(src) {
 				var zeroToOne = vec3.divide(src, resolution);
-				//alert("2");
-				//alert(zeroToOne[0] + "," + zeroToOne[1] + "," + zeroToOne[2]);
-				// Convert from 0->1 to 0->2
-				//var zeroToTwo = zeroToOne * 2.0;
 				var zeroToTwo = vec3.multiply(zeroToOne, [2.0, 2.0, 2.0]);
-				//alert("3");
-				//alert(zeroToTwo[0] + "," + zeroToTwo[1] + "," + zeroToTwo[2]);
-				// Convert from 0->2 to -1->+1 (clipspace)
-				//var clipSpace = zeroToTwo - 1.0;
-				//var clipSpace = vec3.subtract(zeroToTwo, [1.0, 1.0, 1.0]);
-				//alert("4");
-				//alert(clipSpace[0] + "," + clipSpace[1] + "," + clipSpace[2]);
 				var dest = vec3.multiply(zeroToTwo, [1.0, -1.0, 0.0]);
-				//alert("5");
-				//alert(dest[0] + "," + dest[1] + "," + dest[2]);
-				//alert("0");
 				return dest;
 			}
 
