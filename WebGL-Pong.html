@@ -49,10 +49,10 @@
 				mat4.translate(this.mvMatrix, normalToClip(locStart));
 				
 				this.vertices = [
-					0.0, 100.0,
-					20.0, 100.0,
-					0.0, 0.0,
-					20.0, 0.0
+					-10.0, 50.0,
+					10.0, 50.0,
+					-10.0, -50.0,
+					10.0, -50.0
 				];
 				this.color = color;
 				initBuffers(this);
@@ -64,10 +64,10 @@
 				mat4.translate(this.mvMatrix, normalToClip(locStart));
 				
 				this.vertices = [
-					0.0, 20.0,
-					20.0, 20.0,
-					0.0, 0.0,
-					20.0, 0.0
+					-10.0, 10.0,
+					10.0, 10.0,
+					-10.0, -10.0,
+					10.0, -10.0
 				];
 				this.color = color;
 				initBuffers(this);
@@ -165,8 +165,8 @@
 			}
 			
 			function initObjects() {
-				player1 = new Player([100.0, 100.0, 0.0], [1.0, 0.0, 0.0, 1.0]);
-				player2 = new Player([400.0, 100.0, 0.0], [0.0, 1.0, 0.0, 1.0]);
+				player1 = new Player([100.0, 50.0, 0.0], [1.0, 0.0, 0.0, 1.0]);
+				player2 = new Player([400.0, 50.0, 0.0], [0.0, 1.0, 0.0, 1.0]);
 				ball = new Ball([250.0, 250.0, 0.0], [0.0, 0.0, 1.0, 1.0]);
 			}
 			
@@ -192,6 +192,12 @@
 				drawingColorBuffers.push(object.colorBuffer);
 			}
 			
+			function refillBuffers(object) {
+				drawingMVMatrices.push(object.mvMatrix);
+				drawingVertexBuffers.push(object.vertexBuffer);
+				drawingColorBuffers.push(object.colorBuffer);
+			}
+			
 			function handleKeyDown(event) {
 				currentlyPressedKeys[event.keyCode] = true;
 			}
@@ -203,28 +209,31 @@
 			function handleKeys() {
 				if (currentlyPressedKeys[33]) {
 					// Page Up
-					z -= 0.05;
+					mat4.translate(player2.mvMatrix, normalToClip([0.0, -4.0, 0.0]));
 				}
 				if (currentlyPressedKeys[34]) {
 					// Page Down
-					z += 0.05;
+					mat4.translate(player2.mvMatrix, normalToClip([0.0, 4.0, 0.0]));
 				}
 				if (currentlyPressedKeys[37]) {
 					// Left cursor key
-					ySpeed -= 1;
 				}
 				if (currentlyPressedKeys[39]) {
 					// Right cursor key
-					ySpeed += 1;
 				}
 				if (currentlyPressedKeys[38]) {
 					// Up cursor key
-					xSpeed -= 1;
+					mat4.translate(player1.mvMatrix, normalToClip([0.0, -4.0, 0.0]));
 				}
 				if (currentlyPressedKeys[40]) {
 					// Down cursor key
-					xSpeed += 1;
+					mat4.translate(player1.mvMatrix, normalToClip([0.0, 4.0, 0.0]));
 				}
+			}
+			
+			function checkCollision() {
+				// TODO: Write collision code.
+				
 			}
 
 			function drawScene() {
@@ -239,11 +248,11 @@
 				for (var i = drawingVertexBuffers.length; i > 0; i--) {
 				//alert("0");
 					mvMatrix = drawingMVMatrices.pop();
-					drawingMVMatrices.unshift(mvMatrix);
+					//drawingMVMatrices.unshift(mvMatrix);
 					vertexBuffer = drawingVertexBuffers.pop();
-					drawingVertexBuffers.unshift(vertexBuffer);
+					//drawingVertexBuffers.unshift(vertexBuffer);
 					colorBuffer = drawingColorBuffers.pop();
-					drawingColorBuffers.unshift(colorBuffer);
+					//drawingColorBuffers.unshift(colorBuffer);
 					gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 					gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 					gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
@@ -262,6 +271,8 @@
 			
 			function tick() {
 				requestAnimFrame(tick);
+				handleKeys();
+				checkCollision();
 				drawScene();
 				animate();
 			}
@@ -272,9 +283,13 @@
 				if (lastTime != 0) {
 					var elapsed = timeNow - lastTime;
 					
-					
+					mat4.translate(ball.mvMatrix, normalToClip([-2.0, -2.0, 0.0]));
 				}
 				lastTime = timeNow;
+				
+				refillBuffers(player1);
+				refillBuffers(player2);
+				refillBuffers(ball);
 			}
 
 			function webGLStart() {
@@ -285,6 +300,9 @@
 
 				gl.clearColor(0.0, 0.0, 0.0, 1.0);
 				gl.enable(gl.DEPTH_TEST);
+				
+				document.onkeydown = handleKeyDown;
+				document.onkeyup = handleKeyUp;
 
 				tick();
 			}
