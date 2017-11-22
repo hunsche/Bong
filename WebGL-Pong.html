@@ -7,12 +7,17 @@
     position: relative;
 }
  
-
-	#text {
+#text {
+    position: absolute;
+    left: 500px;
+    top: 200px;
+    z-index: 5;
+}
+#score {
     position: absolute;
     left: 0px;
     top: 0px;
-    z-index: 10;
+    z-index: 5;
 }
 </style>
 
@@ -309,11 +314,22 @@
 				vec3.multiply(ball.velocity, [1.0, -1.0, 1.0]);
 			}
 		}
-
-		function drawScene() {
+	var isMenu = true;
+		function drawScene() {			
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+			ctxScore.clearRect(0, 0, ctxScore.canvas.width, ctxScore.canvas.height);
+			ctxText.clearRect(0, 0, ctxText.canvas.width, ctxText.canvas.height);
+			
+			if(isMenu){
+			ctxText.fillStyle = "#ffffff";
+			ctxText.font="20px Verdana";
+			// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
+			ctxText.fillText('Play', 10, 20);
+				return;	
+			}
+
+
 
 			var currentMVMatrix;
 			var vertexBuffer;
@@ -329,9 +345,13 @@
 				setMatrixUniforms();
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexBuffer.numItems);
 			}
-			ctx.font="20px Verdana";
-			ctx.fillText('escreva o placar aqui', 40, 40);
+			
+			ctxScore.fillStyle = "#ffffff";
+			ctxScore.font="20px Verdana";
+			ctxScore.fillText(scorePlayer1 +  'X' + scorePlayer2, 40, 40);
 		}
+
+		
 
 		function normalToClip(src) {
 			var zeroToOne = vec3.divide(src, resolution);
@@ -363,28 +383,30 @@
 			refillBuffers(player2);
 			refillBuffers(ball);
 		}
-		var ctx;
+		var ctxScore;
+		var ctxText;
+		var canvas;
 		function webGLStart() {
-// look up the text canvas.
-var textCanvas = document.getElementById("text");
+			// look up the text canvas.
+			ctxScore  = document.getElementById("score").getContext("2d");
+			ctxText  = document.getElementById("text").getContext("2d");
  
-// make a 2D context for it
-ctx = textCanvas.getContext("2d");
-
-			var canvas = document.getElementById("canvas");
+			canvas = document.getElementById("canvas");
 			canvas.width = window.innerWidth - 16;
 			canvas.height = window.innerHeight - 16;			
 			initGL(canvas);
-			initShaders();
+			in0itShaders();
 			initObjects(canvas);
 
-			gl.clearColor(0.0, 0.0, 0.0, 0.0);
+			gl.clearColor(0.0, 0.0, 0.0, 1.0);
 			gl.enable(gl.DEPTH_TEST);
 
 			document.onkeydown = handleKeyDown;
 			document.onkeyup = handleKeyUp;
+			ctxText.canvas.addEventListener('click', function() {console.log('click'); isMenu = false; }, false);
 
 			tick();
+
 
 		}
 
@@ -394,11 +416,9 @@ ctx = textCanvas.getContext("2d");
 
 <body onload="webGLStart();">
 
-	<div class="container">
-	
 	<canvas id="canvas" style="border: none;"></canvas>
 	<canvas id="text"></canvas>
-</div>
+	<canvas id="score"></canvas>
 </body>
 
 </html>
