@@ -43,32 +43,37 @@
 
 	<script type="text/javascript">
 		function Player(locStart, color) {
+			this.locStart = Object.create(locStart);
 			this.location = Object.create(locStart);
 			this.width = 20;
-			this.height = 100;
+			this.height = 200;
 
-			this.velocity = 4.0;
+			this.velocity = 6.0;
 
 			this.mvMatrix = mat4.create();
 			mat4.identity(this.mvMatrix);
 			mat4.translate(this.mvMatrix, normalToClip(Object.create(locStart)));
 
 			this.vertices = [
-				-10.0, 50.0,
-				10.0, 50.0,
-				-10.0, -50.0,
-				10.0, -50.0
+				-10.0, 100.0,
+				10.0, 100.0,
+				-10.0, -100.0,
+				10.0, -100.0
 			];
 			this.color = color;
 			initBuffers(this);
 		}
 
-		function Ball(locStart, color) {
+		function Ball(canvas) {
+			locStart = [(canvas.width / 2) - 10, (canvas.height / 2) - 10, 0.0];
+			color = [0.0, 0.0, 1.0, 1.0];
 			this.location = Object.create(locStart);
 			this.width = 20;
 			this.height = 20;
 
-			this.velocity = [-1.0, -1.0, 0.0];
+			let side = [5, -5]
+
+			this.velocity = [side[Math.floor((Math.random() * 2) + 1) - 1], side[Math.floor((Math.random() * 2) + 1) - 1], 0.0];
 
 			this.mvMatrix = mat4.create();
 			mat4.identity(this.mvMatrix);
@@ -98,6 +103,8 @@
 		var player1;
 		var player2;
 		var ball;
+		var scorePlayer1 = 0;
+		var scorePlayer2 = 0;
 
 		function initGL(canvas) {
 			try {
@@ -177,9 +184,9 @@
 		}
 
 		function initObjects(canvas) {
-			player1 = new Player([15.0, 50.0, 0.0], [1.0, 0.0, 0.0, 1.0]);
-			player2 = new Player([canvas.width - 15.0, 50.0, 0.0], [0.0, 1.0, 0.0, 1.0]);
-			ball = new Ball([250.0, 250.0, 0.0], [0.0, 0.0, 1.0, 1.0]);
+			player1 = new Player([15.0, 100.0, 0.0], [1.0, 0.0, 0.0, 1.0]);
+			player2 = new Player([canvas.width - 15.0, 100.0, 0.0], [0.0, 1.0, 0.0, 1.0]);
+			ball = new Ball(canvas);
 		}
 
 		function initBuffers(object) {
@@ -258,6 +265,15 @@
 				mat4.translate(player2.mvMatrix, normalToClip([0, canvas.height - (player2.location[1] + (player2.height / 2.0)), 0]));
 				player2.location[1] = canvas.height - (player2.height / 2.0);
 			}
+			if (ball.location[0] < 0){
+				ball = new Ball(canvas);
+				scorePlayer2++;
+			}
+			if (ball.location[0] > canvas.width - 16){
+				ball = new Ball(canvas);
+				scorePlayer1++;
+			}
+			console.log(ball.location);
 			if (Math.abs(ball.location[0] - player1.location[0]) <= (ball.width / 2.0) + (player1.width / 2.0) &&
 				ball.location[0] - player1.location[0] >= 0 &&
 				Math.abs(ball.location[1] - player1.location[1]) <= (ball.height / 2.0) + (player1.height / 2.0)) {
