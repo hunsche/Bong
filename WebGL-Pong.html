@@ -1,25 +1,25 @@
 <html>
 
 <head>
-<style>
+	<style>
+		
+		.container {
+			position: relative;
+		}
 
-.container {
-    position: relative;
-}
- 
-#text {
-    position: absolute;
-    left: 500px;
-    top: 200px;
-    z-index: 5;
-}
-#score {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    z-index: 5;
-}
-</style>
+		#text {
+			position: absolute;
+			left: 500px;
+			top: 200px;
+			z-index: 5;
+		}
+		#score {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			z-index: 5;
+		}
+	</style>
 
 
 	<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
@@ -314,19 +314,19 @@
 				vec3.multiply(ball.velocity, [1.0, -1.0, 1.0]);
 			}
 		}
-	var isMenu = true;
-		function drawScene() {			
+		var isMenu = true;
+		function drawScene() {
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			ctxScore.clearRect(0, 0, ctxScore.canvas.width, ctxScore.canvas.height);
 			ctxText.clearRect(0, 0, ctxText.canvas.width, ctxText.canvas.height);
-			
+
 			if(isMenu){
-			ctxText.fillStyle = "#ffffff";
-			ctxText.font="20px Verdana";
-			// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
-			ctxText.fillText('Play', 10, 20);
-				return;	
+				ctxText.fillStyle = "#ffffff";
+				ctxText.font="20px Verdana";
+				// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
+				ctxText.fillText('Play', 10, 20);
+				return;
 			}
 
 
@@ -345,13 +345,13 @@
 				setMatrixUniforms();
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexBuffer.numItems);
 			}
-			
+
 			ctxScore.fillStyle = "#ffffff";
 			ctxScore.font="20px Verdana";
 			ctxScore.fillText(scorePlayer1 +  'X' + scorePlayer2, 40, 40);
 		}
 
-		
+
 
 		function normalToClip(src) {
 			var zeroToOne = vec3.divide(src, resolution);
@@ -365,7 +365,7 @@
 			handleKeys();
 			checkCollision();
 			drawScene();
-			animate();			
+			animate();
 		}
 
 		var lastTime = 0;
@@ -386,14 +386,21 @@
 		var ctxScore;
 		var ctxText;
 		var canvas;
+
+		function playMusic() {
+			var audio = new Audio('audio.mp3');
+			audio.play();
+		}
+
 		function webGLStart() {
+			playMusic();
 			// look up the text canvas.
-			ctxScore  = document.getElementById("score").getContext("2d");
-			ctxText  = document.getElementById("text").getContext("2d");
- 
+			ctxScore = document.getElementById("score").getContext("2d");
+			ctxText = document.getElementById("text").getContext("2d");
+
 			canvas = document.getElementById("canvas");
 			canvas.width = window.innerWidth - 16;
-			canvas.height = window.innerHeight - 16;			
+			canvas.height = window.innerHeight - 16;
 			initGL(canvas);
 			initShaders();
 			initObjects(canvas);
@@ -403,7 +410,7 @@
 
 			document.onkeydown = handleKeyDown;
 			document.onkeyup = handleKeyUp;
-			ctxText.canvas.addEventListener('click', function() {console.log('click'); isMenu = false; }, false);
+			ctxText.canvas.addEventListener('click', function () { console.log('click'); isMenu = false; }, false);
 
 			tick();
 
