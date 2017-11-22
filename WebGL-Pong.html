@@ -320,7 +320,10 @@
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			ctxScore.clearRect(0, 0, ctxScore.canvas.width, ctxScore.canvas.height);
 			ctxText.clearRect(0, 0, ctxText.canvas.width, ctxText.canvas.height);
-			
+			if(scorePlayer1 > 5 || scorePlayer2 > 5){
+				isMenu = 1;
+			}
+
 			if(isMenu){
 			ctxText.fillStyle = "#ffffff";
 			ctxText.font="20px Verdana";
@@ -386,7 +389,14 @@
 		var ctxScore;
 		var ctxText;
 		var canvas;
+
+		function playMusic() {
+			var audio = new Audio('audio.mp3');
+			audio.play();
+		}
+
 		function webGLStart() {
+			playMusic();
 			// look up the text canvas.
 			ctxScore  = document.getElementById("score").getContext("2d");
 			ctxText  = document.getElementById("text").getContext("2d");
@@ -395,7 +405,7 @@
 			canvas.width = window.innerWidth - 16;
 			canvas.height = window.innerHeight - 16;			
 			initGL(canvas);
-			in0itShaders();
+			initShaders();
 			initObjects(canvas);
 
 			gl.clearColor(0.0, 0.0, 0.0, 1.0);
