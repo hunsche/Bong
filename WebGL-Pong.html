@@ -1,6 +1,21 @@
 <html>
 
 <head>
+<style>
+
+.container {
+    position: relative;
+}
+ 
+
+	#text {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 10;
+}
+</style>
+
 
 	<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 	<script type="text/javascript" src="Mat3Translate.js"></script>
@@ -273,7 +288,7 @@
 				ball = new Ball(canvas);
 				scorePlayer1++;
 			}
-			console.log(ball.location);
+			// console.log(ball.location);
 			if (Math.abs(ball.location[0] - player1.location[0]) <= (ball.width / 2.0) + (player1.width / 2.0) &&
 				ball.location[0] - player1.location[0] >= 0 &&
 				Math.abs(ball.location[1] - player1.location[1]) <= (ball.height / 2.0) + (player1.height / 2.0)) {
@@ -298,6 +313,7 @@
 		function drawScene() {
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
 			var currentMVMatrix;
 			var vertexBuffer;
@@ -313,6 +329,8 @@
 				setMatrixUniforms();
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexBuffer.numItems);
 			}
+			ctx.font="20px Verdana";
+			ctx.fillText('escreva o placar aqui', 40, 40);
 		}
 
 		function normalToClip(src) {
@@ -327,7 +345,7 @@
 			handleKeys();
 			checkCollision();
 			drawScene();
-			animate();
+			animate();			
 		}
 
 		var lastTime = 0;
@@ -345,8 +363,14 @@
 			refillBuffers(player2);
 			refillBuffers(ball);
 		}
-
+		var ctx;
 		function webGLStart() {
+// look up the text canvas.
+var textCanvas = document.getElementById("text");
+ 
+// make a 2D context for it
+ctx = textCanvas.getContext("2d");
+
 			var canvas = document.getElementById("canvas");
 			canvas.width = window.innerWidth - 16;
 			canvas.height = window.innerHeight - 16;			
@@ -354,7 +378,7 @@
 			initShaders();
 			initObjects(canvas);
 
-			gl.clearColor(0.0, 0.0, 0.0, 1.0);
+			gl.clearColor(0.0, 0.0, 0.0, 0.0);
 			gl.enable(gl.DEPTH_TEST);
 
 			document.onkeydown = handleKeyDown;
@@ -370,8 +394,11 @@
 
 <body onload="webGLStart();">
 
+	<div class="container">
+	
 	<canvas id="canvas" style="border: none;"></canvas>
-
+	<canvas id="text"></canvas>
+</div>
 </body>
 
 </html>
