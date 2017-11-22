@@ -265,11 +265,11 @@
 				mat4.translate(player2.mvMatrix, normalToClip([0, canvas.height - (player2.location[1] + (player2.height / 2.0)), 0]));
 				player2.location[1] = canvas.height - (player2.height / 2.0);
 			}
-			if (ball.location[0] < 0){
+			if (ball.location[0] < 0) {
 				ball = new Ball(canvas);
 				scorePlayer2++;
 			}
-			if (ball.location[0] > canvas.width - 16){
+			if (ball.location[0] > canvas.width - 16) {
 				ball = new Ball(canvas);
 				scorePlayer1++;
 			}
@@ -347,20 +347,36 @@
 		}
 
 		function webGLStart() {
-			var canvas = document.getElementById("canvas");
-			canvas.width = window.innerWidth - 16;
-			canvas.height = window.innerHeight - 16;			
-			initGL(canvas);
-			initShaders();
-			initObjects(canvas);
+			var textCtx = document.createElement("canvas").getContext("2d");
+			// Puts text in center of canvas.
+			function makeTextCanvas(text, width, height) {
+				textCtx.canvas.width = width;
+				textCtx.canvas.height = height;
+				textCtx.font = "20px monospace";
+				textCtx.textAlign = "center";
+				textCtx.textBaseline = "middle";
+				textCtx.fillStyle = "black";
+				textCtx.clearRect(0, 0, textCtx.canvas.width, textCtx.canvas.height);
+				textCtx.fillText(text, width / 2, height / 2);
+				return textCtx.canvas;
+			}
 
-			gl.clearColor(0.0, 0.0, 0.0, 1.0);
-			gl.enable(gl.DEPTH_TEST);
+			// makeTextCanvas("hello World", 250, 250);
 
-			document.onkeydown = handleKeyDown;
-			document.onkeyup = handleKeyUp;
+			// var canvas = document.getElementById("canvas");
+			// canvas.width = window.innerWidth - 16;
+			// canvas.height = window.innerHeight - 16;
+			// initGL(canvas);
+			// initShaders();
+			// initObjects(canvas);
 
-			tick();
+			// gl.clearColor(0.0, 0.0, 0.0, 1.0);
+			// gl.enable(gl.DEPTH_TEST);
+
+			// document.onkeydown = handleKeyDown;
+			// document.onkeyup = handleKeyUp;
+
+			// tick();
 
 		}
 
