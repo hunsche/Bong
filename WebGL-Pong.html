@@ -1,25 +1,25 @@
 <html>
 
 <head>
-<style>
+	<style>
+		.container {
+			position: relative;
+		}
 
-.container {
-    position: relative;
-}
- 
-#text {
-    position: absolute;
-    left: 500px;
-    top: 200px;
-    z-index: 5;
-}
-#score {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    z-index: 5;
-}
-</style>
+		#text {
+			position: absolute;
+			left: 500px;
+			top: 200px;
+			z-index: 5;
+		}
+
+		#score {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			z-index: 5;
+		}
+	</style>
 
 
 	<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
@@ -285,11 +285,11 @@
 				mat4.translate(player2.mvMatrix, normalToClip([0, canvas.height - (player2.location[1] + (player2.height / 2.0)), 0]));
 				player2.location[1] = canvas.height - (player2.height / 2.0);
 			}
-			if (ball.location[0] < 0){
+			if (ball.location[0] < 0) {
 				ball = new Ball(canvas);
 				scorePlayer2++;
 			}
-			if (ball.location[0] > canvas.width - 16){
+			if (ball.location[0] > canvas.width - 16) {
 				ball = new Ball(canvas);
 				scorePlayer1++;
 			}
@@ -314,24 +314,24 @@
 				vec3.multiply(ball.velocity, [1.0, -1.0, 1.0]);
 			}
 		}
-	var isMenu = true;
-		function drawScene() {			
+		var isMenu = true;
+		function drawScene() {
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			ctxScore.clearRect(0, 0, ctxScore.canvas.width, ctxScore.canvas.height);
 			ctxText.clearRect(0, 0, ctxText.canvas.width, ctxText.canvas.height);
-			if(scorePlayer1 > 4 || scorePlayer2 > 4){
+			if (scorePlayer1 > 4 || scorePlayer2 > 4) {
 				isMenu = true;
 				scorePlayer1 = 0;
 				scorePlayer2 = 0;
 			}
 
-			if(isMenu){
-			ctxText.fillStyle = "#ffffff";
-			ctxText.font="20px Verdana";
-			// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
-			ctxText.fillText('Play', 10, 20);
-				return;	
+			if (isMenu) {
+				ctxText.fillStyle = "#ffffff";
+				ctxText.font = "20px Verdana";
+				// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
+				ctxText.fillText('Play', 10, 20);
+				return;
 			}
 
 
@@ -350,13 +350,13 @@
 				setMatrixUniforms();
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexBuffer.numItems);
 			}
-			
+
 			ctxScore.fillStyle = "#ffffff";
-			ctxScore.font="20px Verdana";
-			ctxScore.fillText(scorePlayer1 +  'X' + scorePlayer2, 40, 40);
+			ctxScore.font = "20px Verdana";
+			ctxScore.fillText('Player1 - ' + scorePlayer1 + ' X Player2 - ' + scorePlayer2 + '  | ' + printTime / 100 + 's', 30, 40);
 		}
 
-		
+
 
 		function normalToClip(src) {
 			var zeroToOne = vec3.divide(src, resolution);
@@ -370,10 +370,11 @@
 			handleKeys();
 			checkCollision();
 			drawScene();
-			animate();			
+			animate();
 		}
 
 		var lastTime = 0;
+		var printTime;
 		function animate() {
 			var timeNow = new Date().getTime();
 			if (lastTime != 0) {
@@ -381,6 +382,7 @@
 
 				mat4.translate(ball.mvMatrix, normalToClip(Object.create(ball.velocity)));
 				ball.location = vec3.add(ball.location, ball.velocity);
+				printTime++;
 			}
 			lastTime = timeNow;
 
@@ -400,12 +402,12 @@
 		function webGLStart() {
 			playMusic();
 			// look up the text canvas.
-			ctxScore  = document.getElementById("score").getContext("2d");
-			ctxText  = document.getElementById("text").getContext("2d");
- 
+			ctxScore = document.getElementById("score").getContext("2d");
+			ctxText = document.getElementById("text").getContext("2d");
+
 			canvas = document.getElementById("canvas");
 			canvas.width = window.innerWidth - 16;
-			canvas.height = window.innerHeight - 16;			
+			canvas.height = window.innerHeight - 16;
 			initGL(canvas);
 			initShaders();
 			initObjects(canvas);
@@ -415,7 +417,10 @@
 
 			document.onkeydown = handleKeyDown;
 			document.onkeyup = handleKeyUp;
-			ctxText.canvas.addEventListener('click', function() {console.log('click'); isMenu = false; }, false);
+			ctxText.canvas.addEventListener('click', function () {
+				console.log('click'); isMenu = false;
+				printTime = 0;
+			}, false);
 
 			tick();
 
