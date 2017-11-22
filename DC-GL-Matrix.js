@@ -80,20 +80,6 @@ vec2.normalize = function(a, b) {
 	return b;
 }
 
-/*
-vec2.cross = function(a, b, c) {
-	c || (c = a);
-	var d = a[0], e = a[1];
-	a = a[2];
-	var g = b[0], f = b[1];
-	b = b[2];
-	c[0] = e * b - a * f;
-	c[1] = a * g - d * b;
-	c[2] = d * f - e * g;
-	return c;
-}
-*/
-
 vec2.length = function(a) {
 	var b = a[0];
 	a = a[1];
@@ -876,33 +862,6 @@ mat2.toRotationMat=function(a,b){b||(b=mat4.create());b[0]=a[0];b[1]=a[1];b[2]=a
 mat2.toInverseMat3=function(a,b){var c=a[0],d=a[1],e=a[2],g=a[4],f=a[5],h=a[6],i=a[8],j=a[9],k=a[10],l=k*f-h*j,o=-k*g+h*i,m=j*g-f*i,n=c*l+d*o+e*m;if(!n)return null;n=1/n;b||(b=mat3.create());b[0]=l*n;b[1]=(-k*d+e*j)*n;b[2]=(h*d-e*f)*n;b[3]=o*n;b[4]=(k*c-e*i)*n;b[5]=(-h*c+e*g)*n;b[6]=m*n;b[7]=(-j*c+d*i)*n;b[8]=(f*c-d*g)*n;return b;
 }
 
-/*
-mat4.multiply = function(a, b, c) {
-	c || (c = a);
-	var d = a[0], e = a[1], g = a[2], f = a[3], h = a[4], i = a[5], j = a[6], k = a[7], l = a[8], o = a[9], m = a[10], n = a[11], p = a[12], r = a[13], s = a[14];
-	a = a[15];
-	var A = b[0], B = b[1], t = b[2], u = b[3], v = b[4], w = b[5], x = b[6], y = b[7], z = b[8], C = b[9], D = b[10], E = b[11], q = b[12], F = b[13], G = b[14];
-	b = b[15];
-	c[0] = A * d + B * h + t * l + u * p;
-	c[1] = A * e + B * i + t * o + u * r;
-	c[2] = A * g + B * j + t * m + u * s;
-	c[3] = A * f + B * k + t * n + u * a;
-	c[4] = v * d + w * h + x * l + y * p;
-	c[5] = v * e + w * i + x * o + y * r;
-	c[6] = v * g + w * j + x * m + y * s;
-	c[7] = v * f + w * k + x * n + y * a;
-	c[8] = z * d + C * h + D * l + E * p;
-	c[9] = z * e + C * i + D * o + E * r;
-	c[10] = z * g + C * j + D * m + E * s;
-	c[11] = z * f + C * k + D * n + E * a;
-	c[12] = q * d + F * h + G * l + b * p;
-	c[13] = q * e + F * i + G * o + b * r;
-	c[14] = q * g + F * j + G * m + b * s;
-	c[15] = q * f + F * k + G * n + b * a;
-	return c;
-}
-*/
-
 mat2.multiply = function(a, b, c) {
 	c || (c = a);
 	var d = a[0], e = a[1], f = a[2];
@@ -916,15 +875,6 @@ mat2.multiply = function(a, b, c) {
 	return c;
 }
 
-//mat4.multiplyVec2 = function(a, b, c) {
-//	c || (c = b);
-//	var d = b[0], e = b[1];
-//	b = b[2];
-//	c[0] = a[0] * d + a[4] * e + a[8] * b + a[12];
-//	c[1] = a[1] * d + a[5] * e + a[9] * b + a[13];
-//	return c;
-//}
-
 mat2.multiplyVec2 = function(a, b, c) {
 	c || (c = b);
 	var d = b[0];
@@ -933,31 +883,6 @@ mat2.multiplyVec2 = function(a, b, c) {
 	c[1] = a[1] * d + a[3] * b;
 	return c;
 }
-
-/*
-mat4.multiplyVec3 = function(a, b, c) {
-	c || (c = b);
-	var d = b[0], e = b[1];
-	b = b[2];
-	c[0] = a[0] * d + a[4] * e + a[8] * b + a[12];
-	c[1] = a[1] * d + a[5] * e + a[9] * b + a[13];
-	c[2] = a[2] * d + a[6] * e + a[10] * b + a[14];
-	return c;
-}
-*/
-
-/*
-mat4.multiplyVec4 = function(a, b, c) {
-	c || (c = b);
-	var d = b[0], e = b[1], f = b[2];
-	b = b[3];
-	c[0] = a[0] * d + a[4] * e + a[8] * f + a[12] * b;
-	c[1] = a[1] * d + a[5] * e + a[9] * f + a[13] * b;
-	c[2] = a[2] * d + a[6] * e + a[10] * f + a[14] * b;
-	c[3] = a[3] * d + a[7] * e + a[11] * f + a[15] * b;
-	return c;
-}
-*/
 
 //mat4
 mat4.translate = function(a, b, c) {
@@ -1007,45 +932,6 @@ mat2.translate = function(a, b, c) {
 	c[15] = i * d + o * e + r * b + a[15];
 	return c;
 }
-
-/*
-mat4.scale = function(a, b, c) {
-	var d = b[0], e = b[1];
-	b = b[2];
-	if (!c || a == c) {
-		a[0] *= d;
-		a[1] *= d;
-		a[2] *= d;
-		a[3] *= d;
-		a[4] *= e;
-		a[5] *= e;
-		a[6] *= e;
-		a[7] *= e;
-		a[8] *= b;
-		a[9] *= b;
-		a[10] *= b;
-		a[11] *= b;
-		return a;
-	}
-	c[0] = a[0] * d;
-	c[1] = a[1] * d;
-	c[2] = a[2] * d;
-	c[3] = a[3] * d;
-	c[4] = a[4] * e;
-	c[5] = a[5] * e;
-	c[6] = a[6] * e;
-	c[7] = a[7] * e;
-	c[8] = a[8] * b;
-	c[9] = a[9] * b;
-	c[10] = a[10] * b;
-	c[11] = a[11] * b;
-	c[12] = a[12];
-	c[13] = a[13];
-	c[14] = a[14];
-	c[15] = a[15];
-	return c;
-}
-*/
 
 mat2.scale = function(a, b, c) {
 	var d = b[0];
