@@ -288,10 +288,14 @@
 			if (ball.location[0] < 0) {
 				ball = new Ball(canvas);
 				scorePlayer2++;
+				if (!isMenu)
+					playGol();
 			}
 			if (ball.location[0] > canvas.width - 16) {
 				ball = new Ball(canvas);
 				scorePlayer1++;
+				if (!isMenu)
+					playGol();
 			}
 			// console.log(ball.location);
 			if (Math.abs(ball.location[0] - player1.location[0]) <= (ball.width / 2.0) + (player1.width / 2.0) &&
@@ -330,7 +334,7 @@
 				ctxText.fillStyle = "#ffffff";
 				ctxText.font = "20px Verdana";
 				// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
-				ctxText.fillText('Play', 10, 20);
+				ctxText.fillText(' Bong!! \n Play', 10, 20);
 				return;
 			}
 
@@ -353,7 +357,10 @@
 
 			ctxScore.fillStyle = "#ffffff";
 			ctxScore.font = "20px Verdana";
-			ctxScore.fillText('Player1 - ' + scorePlayer1 + ' X Player2 - ' + scorePlayer2 + '  | ' + printTime / 100 + 's', 30, 40);
+			let a = document.getElementById('player2').value;
+			let b = document.getElementById('player1').value;
+
+			ctxScore.fillText(b + ' ' + scorePlayer1 + ' X ' + a + ' ' + scorePlayer2 + '  | ' + printTime / 100 + 's', 30, 40);
 		}
 
 
@@ -396,7 +403,14 @@
 
 		function playMusic() {
 			var audio = new Audio('audio.mp3');
+			audio.volume = 0.5;
+			console.log(audio.volume);
 			audio.play();
+		}
+
+		function playGol() {
+			var audiogol = new Audio('gol.mp3');
+			audiogol.play();
 		}
 
 		function webGLStart() {
@@ -436,6 +450,11 @@
 	<canvas id="canvas" style="border: none;"></canvas>
 	<canvas id="text"></canvas>
 	<canvas id="score"></canvas>
+	<label>Player1:</label>
+	<input type="text" id="player1" value="Player1">
+	<br>
+	<label>Player2:</label>
+	<input type="text" id="player2" value="Player2">
 </body>
 
 </html>
