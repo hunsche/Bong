@@ -1,6 +1,26 @@
 <html>
 
 <head>
+	<style>
+		.container {
+			position: relative;
+		}
+
+		#text {
+			position: absolute;
+			left: 500px;
+			top: 200px;
+			z-index: 5;
+		}
+
+		#score {
+			position: absolute;
+			left: 450px;
+			top: 10px;
+			z-index: 5;
+		}
+	</style>
+
 
 	<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
 	<script type="text/javascript" src="Mat3Translate.js"></script>
@@ -268,12 +288,16 @@
 			if (ball.location[0] < 0) {
 				ball = new Ball(canvas);
 				scorePlayer2++;
+				if (!isMenu)
+					playGol();
 			}
 			if (ball.location[0] > canvas.width - 16) {
 				ball = new Ball(canvas);
 				scorePlayer1++;
+				if (!isMenu)
+					playGol();
 			}
-			console.log(ball.location);
+			// console.log(ball.location);
 			if (Math.abs(ball.location[0] - player1.location[0]) <= (ball.width / 2.0) + (player1.width / 2.0) &&
 				ball.location[0] - player1.location[0] >= 0 &&
 				Math.abs(ball.location[1] - player1.location[1]) <= (ball.height / 2.0) + (player1.height / 2.0)) {
@@ -294,10 +318,27 @@
 				vec3.multiply(ball.velocity, [1.0, -1.0, 1.0]);
 			}
 		}
-
+		var isMenu = true;
 		function drawScene() {
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			ctxScore.clearRect(0, 0, ctxScore.canvas.width, ctxScore.canvas.height);
+			ctxText.clearRect(0, 0, ctxText.canvas.width, ctxText.canvas.height);
+			if (scorePlayer1 > 4 || scorePlayer2 > 4) {
+				isMenu = true;
+				scorePlayer1 = 0;
+				scorePlayer2 = 0;
+			}
+
+			if (isMenu) {
+				ctxText.fillStyle = "#ffffff";
+				ctxText.font = "20px Verdana";
+				// ctxScore.fillText('escreva o placar aqui', window.innerWidth/2, window.innerHeight/2);
+				ctxText.fillText(' Bong!! \n Play', 10, 20);
+				return;
+			}
+
+
 
 			var currentMVMatrix;
 			var vertexBuffer;
@@ -313,7 +354,16 @@
 				setMatrixUniforms();
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexBuffer.numItems);
 			}
+
+			ctxScore.fillStyle = "#ffffff";
+			ctxScore.font = "20px Verdana";
+			let a = document.getElementById('player2').value;
+			let b = document.getElementById('player1').value;
+
+			ctxScore.fillText(b + ' ' + scorePlayer1 + ' X ' + a + ' ' + scorePlayer2 + '  | ' + printTime / 100 + 's', 30, 40);
 		}
+
+
 
 		function normalToClip(src) {
 			var zeroToOne = vec3.divide(src, resolution);
@@ -331,6 +381,7 @@
 		}
 
 		var lastTime = 0;
+		var printTime;
 		function animate() {
 			var timeNow = new Date().getTime();
 			if (lastTime != 0) {
@@ -338,6 +389,7 @@
 
 				mat4.translate(ball.mvMatrix, normalToClip(Object.create(ball.velocity)));
 				ball.location = vec3.add(ball.location, ball.velocity);
+				printTime++;
 			}
 			lastTime = timeNow;
 
@@ -345,38 +397,47 @@
 			refillBuffers(player2);
 			refillBuffers(ball);
 		}
+		var ctxScore;
+		var ctxText;
+		var canvas;
+
+		function playMusic() {
+			var audio = new Audio('audio.mp3');
+			audio.volume = 0.5;
+			console.log(audio.volume);
+			audio.play();
+		}
+
+		function playGol() {
+			var audiogol = new Audio('gol.mp3');
+			audiogol.play();
+		}
 
 		function webGLStart() {
-			var textCtx = document.createElement("canvas").getContext("2d");
-			// Puts text in center of canvas.
-			function makeTextCanvas(text, width, height) {
-				textCtx.canvas.width = width;
-				textCtx.canvas.height = height;
-				textCtx.font = "20px monospace";
-				textCtx.textAlign = "center";
-				textCtx.textBaseline = "middle";
-				textCtx.fillStyle = "black";
-				textCtx.clearRect(0, 0, textCtx.canvas.width, textCtx.canvas.height);
-				textCtx.fillText(text, width / 2, height / 2);
-				return textCtx.canvas;
-			}
+			playMusic();
+			// look up the text canvas.
+			ctxScore = document.getElementById("score").getContext("2d");
+			ctxText = document.getElementById("text").getContext("2d");
 
-			// makeTextCanvas("hello World", 250, 250);
+			canvas = document.getElementById("canvas");
+			canvas.width = window.innerWidth - 16;
+			canvas.height = window.innerHeight - 16;
+			initGL(canvas);
+			initShaders();
+			initObjects(canvas);
 
-			// var canvas = document.getElementById("canvas");
-			// canvas.width = window.innerWidth - 16;
-			// canvas.height = window.innerHeight - 16;
-			// initGL(canvas);
-			// initShaders();
-			// initObjects(canvas);
+			gl.clearColor(0.0, 0.0, 0.0, 1.0);
+			gl.enable(gl.DEPTH_TEST);
 
-			// gl.clearColor(0.0, 0.0, 0.0, 1.0);
-			// gl.enable(gl.DEPTH_TEST);
+			document.onkeydown = handleKeyDown;
+			document.onkeyup = handleKeyUp;
+			ctxText.canvas.addEventListener('click', function () {
+				console.log('click'); isMenu = false;
+				printTime = 0;
+			}, false);
 
-			// document.onkeydown = handleKeyDown;
-			// document.onkeyup = handleKeyUp;
+			tick();
 
-			// tick();
 
 		}
 
@@ -387,7 +448,13 @@
 <body onload="webGLStart();">
 
 	<canvas id="canvas" style="border: none;"></canvas>
-
+	<canvas id="text"></canvas>
+	<canvas id="score"></canvas>
+	<label>Player1:</label>
+	<input type="text" id="player1" value="Player1">
+	<br>
+	<label>Player2:</label>
+	<input type="text" id="player2" value="Player2">
 </body>
 
 </html>
